@@ -4,6 +4,8 @@ const path = require('path');
 
 // connect to mongoose
 const mongoose = require('mongoose');
+// require ejs engine
+const ejsMate = require('ejs-mate');
 // request override method after npm install
 const methodOverride = require('method-override');
 const Campground = require('./models/campground');
@@ -18,7 +20,10 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
     console.log('Database connected');
 });
+// set view engine to ejs
+app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
+
 app.set('views', path.join(__dirname, 'views'));
 
 // tell express to parse the request body
@@ -70,6 +75,13 @@ app.put('/campgrounds/:id', async (req, res) => {
         ...req.body.tarCampground,
     });
     res.redirect(`/campgrounds/${updatedCampground._id}`);
+});
+
+// delete campground -- DELETE
+app.delete('/campgrounds/:id', async (req, res) => {
+    const id = req.params.id;
+    await Campground.findByIdAndDelete(id);
+    res.redirect('/campgrounds');
 });
 
 // define the port
